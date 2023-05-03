@@ -4,8 +4,9 @@ session_start();
 $errormsg = "";
 if (isset($_POST['email'])) {
 
-  $email = stripslashes($_REQUEST['email']);
+  
   $email = mysqli_real_escape_string($con, $email);
+  $email = stripslashes($_REQUEST['email']);
   $password = stripslashes($_REQUEST['password']);
   $password = mysqli_real_escape_string($con, $password);
   $query = "SELECT * FROM `users` WHERE email='$email'and password='" . md5($password) . "'";
@@ -41,14 +42,6 @@ if (isset($_POST['email'])) {
       font-size: 15px;
     }
 
-    .login-form form {
-      margin-bottom: 15px;
-      background: #fff;
-      box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-      padding: 30px;
-      border: 1px solid #ddd;
-    }
-
     .login-form h2 {
       color: #636363;
       margin: 0 0 15px;
@@ -56,16 +49,6 @@ if (isset($_POST['email'])) {
       text-align: center;
     }
 
-    .login-form h2:before,
-    .login-form h2:after {
-      content: "";
-      height: 2px;
-      width: 30%;
-      background: #d4d4d4;
-      position: absolute;
-      top: 50%;
-      z-index: 2;
-    }
 
     .login-form h2:before {
       left: 0;
@@ -79,6 +62,27 @@ if (isset($_POST['email'])) {
       color: #999;
       margin-bottom: 30px;
       text-align: center;
+    }
+    
+    .login-form form {
+      margin-bottom: 15px;
+      background: #fff;
+      box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      border: 1px solid #ddd;
+    }
+
+    
+
+    .login-form h2:before,
+    .login-form h2:after {
+      content: "";
+      height: 2px;
+      width: 30%;
+      background: #d4d4d4;
+      position: absolute;
+      top: 50%;
+      z-index: 2;
     }
 
     .login-form a:hover {
