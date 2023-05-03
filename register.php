@@ -1,32 +1,24 @@
 <?php
 require('config.php');
-if (isset($_REQUEST['firstname'])) {
-  if ($_REQUEST['password'] == $_REQUEST['confirm_password']) {
-    $firstname = stripslashes($_REQUEST['firstname']);
-    $firstname = mysqli_real_escape_string($con, $firstname);
-    $lastname = stripslashes($_REQUEST['lastname']);
-    $lastname = mysqli_real_escape_string($con, $lastname);
+if (isset($_POST['firstname'])) {
+  if ($_POST['password'] == $_POST['confirm_password']) {
+    $firstname = stripslashes($_POST['firstname']);
+    $lastname = stripslashes($_POST['lastname']);
+    $email = stripslashes($_POST['email']);
+    $password = stripslashes($_POST['password']);
 
-    $email = stripslashes($_REQUEST['email']);
-    $email = mysqli_real_escape_string($con, $email);
-
-
-    $password = stripslashes($_REQUEST['password']);
-    $password = mysqli_real_escape_string($con, $password);
-
-
-    $trn_date = date("Y-m-d H:i:s");
-
-    $query = "INSERT into `users` (firstname, lastname, password, email, trn_date) VALUES ('$firstname','$lastname', '" . md5($password) . "', '$email', '$trn_date')";
-    $result = mysqli_query($con, $query);
-    if ($result) {
+    $stmt = $con->prepare("INSERT INTO `users` (firstname, lastname, password, email, trn_date) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $firstname, $lastname, md5($password), $email, date("Y-m-d H:i:s"));
+    $stmt->execute();
+    if ($stmt->affected_rows > 0) {
       header("Location: login.php");
     }
   } else {
-    echo ("ERROR: Please Check Your Password & Confirmation password");
+    echo "ERROR: Please check your password and confirmation password.";
   }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
