@@ -49,6 +49,13 @@ if (isset($_POST['email'])) {
       border: 1px solid #ddd;
     }
 
+    .login-form {
+      width: 340px;
+      margin: 50px auto;
+      font-size: 15px;
+    }
+
+
     .login-form h2 {
       color: #636363;
       margin: 0 0 15px;
@@ -67,10 +74,21 @@ if (isset($_POST['email'])) {
       z-index: 2;
     }
 
+    
+    .login-form h2:after {
+      right: 0;
+    }
+
     .login-form h2:before {
       left: 0;
     }
 
+   
+    .login-form a:hover {
+      text-decoration: none;
+    }
+
+    
     .login-form h2:after {
       right: 0;
     }
@@ -81,15 +99,21 @@ if (isset($_POST['email'])) {
       text-align: center;
     }
 
-    .login-form a:hover {
-      text-decoration: none;
-    }
-
     .form-control,
     .btn {
       min-height: 38px;
       border-radius: 2px;
     }
+    .login-form h2:after {
+      right: 0;
+    }
+
+    .login-form .hint-text {
+      color: #999;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
 
     .btn {
       font-size: 15px;
