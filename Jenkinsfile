@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment{
-        staging_server="172.31.18.160"
+        staging_server="3.1.84.167"
     }
     stages{
         stage('Deploy PHP Project'){
