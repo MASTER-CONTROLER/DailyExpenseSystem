@@ -1,12 +1,12 @@
 pipeline{
     agent any
     environment{
-        staging_server="ip-172-31-18-160.ap-southeast-1.compute.internal"
+        staging_server="3.1.84.167"
     }
     stages{
         stage('Deploy PHP Project'){
             steps{
-                sh 'scp -r ${WORKSPACE}/* root@{staging_server}:var/www/html/DailyExpenseSystem/'
+                sh 'scp -r ${WORKSPACE}/* shh root@{staging_server}:var/www/html/DailyExpenseSystem/'
             }
         }
     }
