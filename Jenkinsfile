@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment{
-        staging_server="ip-172-31-18-160.ap-southeast-1.compute.internal"
+        staging_server="ip-172-31-18-160"
     }
     stages{
         stage('Deploy PHP Project'){
