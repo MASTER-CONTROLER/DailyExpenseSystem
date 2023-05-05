@@ -6,7 +6,7 @@ pipeline{
     stages{
         stage('Deploy PHP Project'){
             steps{
-                sh "scp -r ${WORKSPACE}/* root@$(staging_server):/var/www/html/DailyExpenseSystem/"
+                sh "scp -r ${WORKSPACE}/* ssh root@${staging_server}:/var/www/html/DailyExpenseSystem/"
             }
         }
     }
