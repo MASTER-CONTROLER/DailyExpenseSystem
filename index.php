@@ -55,11 +55,11 @@
       <div class="list-group list-group-flush">
         <a href="index.php" class="list-group-item list-group-item-action sidebar-active"><span data-feather="home"></span> Dashboard</a>
         <a href="add_expense.php" class="list-group-item list-group-item-action "><span data-feather="plus-square"></span> Add Expenses</a>
-        
+        <a href="manage_expense.php" class="list-group-item list-group-item-action "><span data-feather="dollar-sign"></span> Manage Expenses</a>
       </div>
       <div class="sidebar-heading">Settings </div>
       <div class="list-group list-group-flush">
-       
+        <a href="profile.php" class="list-group-item list-group-item-action "><span data-feather="user"></span> Profile</a>
         <a href="logout.php" class="list-group-item list-group-item-action "><span data-feather="power"></span> Logout</a>
       </div>
     </div>
@@ -103,7 +103,11 @@
                       <p>Add Expenses</p>
                     </a>
                   </div>
-                 
+                  <div class="col text-center">
+                    <a href="manage_expense.php"><img src="icon/maex.png" width="57px" />
+                      <p>Manage Expenses</p>
+                    </a>
+                  </div>
                   <div class="col text-center">
                     <a href="profile.php"><img src="icon/prof.png" width="57px" />
                       <p>User Profile</p>
