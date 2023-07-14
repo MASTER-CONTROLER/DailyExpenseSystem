@@ -5,70 +5,96 @@ $del = false;
 $expenseamount = "";
 $expensedate = date("Y-m-d");
 $expensecategory = "Entertainment";
+// New Code
 if (isset($_POST['add'])) {
+    addExpense();
+}
+
+// New Function
+function addExpense()
+{
+    global $con, $userid;
+
     $expenseamount = $_POST['expenseamount'];
     $expensedate = $_POST['expensedate'];
     $expensecategory = $_POST['expensecategory'];
 
-    $expenses = "INSERT INTO expenses (user_id, expense,expensedate,expensecategory) VALUES ('$userid', '$expenseamount','$expensedate','$expensecategory')";
+    $expenses = "INSERT INTO expenses (user_id, expense, expensedate, expensecategory) VALUES ('$userid', '$expenseamount', '$expensedate', '$expensecategory')";
     $result = mysqli_query($con, $expenses) or die("Something Went Wrong!");
+
     header('location: add_expense.php');
 }
 
+// New Code
 if (isset($_POST['update'])) {
+    updateExpense();
+}
+
+// New Function
+function updateExpense()
+{
+    global $con, $userid;
+
     $id = $_GET['edit'];
     $expenseamount = $_POST['expenseamount'];
     $expensedate = $_POST['expensedate'];
     $expensecategory = $_POST['expensecategory'];
 
     $sql = "UPDATE expenses SET expense='$expenseamount', expensedate='$expensedate', expensecategory='$expensecategory' WHERE user_id='$userid' AND expense_id='$id'";
+
     if (mysqli_query($con, $sql)) {
         echo "Records were updated successfully.";
     } else {
-        echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
+        echo "ERROR: Could not execute $sql. " . mysqli_error($con);
     }
+
     header('location: manage_expense.php');
 }
 
-if (isset($_POST['update'])) {
-    $id = $_GET['edit'];
-    $expenseamount = $_POST['expenseamount'];
-    $expensedate = $_POST['expensedate'];
-    $expensecategory = $_POST['expensecategory'];
-
-    $sql = "UPDATE expenses SET expense='$expenseamount', expensedate='$expensedate', expensecategory='$expensecategory' WHERE user_id='$userid' AND expense_id='$id'";
-    if (mysqli_query($con, $sql)) {
-        echo "Records were updated successfully.";
-    } else {
-        echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
-    }
-    header('location: manage_expense.php');
-}
-
+// New Code
 if (isset($_POST['delete'])) {
+    deleteExpense();
+}
+
+// New Function
+function deleteExpense()
+{
+    global $con, $userid;
+
     $id = $_GET['delete'];
     $expenseamount = $_POST['expenseamount'];
     $expensedate = $_POST['expensedate'];
     $expensecategory = $_POST['expensecategory'];
 
     $sql = "DELETE FROM expenses WHERE user_id='$userid' AND expense_id='$id'";
+
     if (mysqli_query($con, $sql)) {
         echo "Records were updated successfully.";
     } else {
-        echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
+        echo "ERROR: Could not execute $sql. " . mysqli_error($con);
     }
+
     header('location: manage_expense.php');
 }
 
 if (isset($_GET['edit'])) {
+    editExpense();
+}
+
+// New Function
+function editExpense()
+{
+    global $con, $userid, $update, $expenseamount, $expensedate, $expensecategory;
+
     $id = $_GET['edit'];
-    $update = true;
     $record = mysqli_query($con, "SELECT * FROM expenses WHERE user_id='$userid' AND expense_id=$id");
+
     if (mysqli_num_rows($record) == 1) {
-        $n = mysqli_fetch_array($record);
-        $expenseamount = $n['expense'];
-        $expensedate = $n['expensedate'];
-        $expensecategory = $n['expensecategory'];
+        $expense = mysqli_fetch_array($record);
+        $expenseamount = $expense['expense'];
+        $expensedate = $expense['expensedate'];
+        $expensecategory = $expense['expensecategory'];
+        $update = true;
     } else {
         echo ("WARNING: AUTHORIZATION ERROR: Trying to Access Unauthorized data");
     }
