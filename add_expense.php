@@ -15,12 +15,18 @@ function addExpense()
 {
     global $con, $userid;
 
-    $expenseamount = $_POST['expenseamount'];
+    $expense = $_POST['expense'];
     $expensedate = $_POST['expensedate'];
     $expensecategory = $_POST['expensecategory'];
 
-    $expenses = "INSERT INTO expenses (user_id, expense, expensedate, expensecategory) VALUES ('$userid', '$expenseamount', '$expensedate', '$expensecategory')";
+    $expenses = "INSERT INTO expenses (user_id, expense, expensedate, expensecategory) VALUES ('$userid', '$expense', '$expensedate', '$expensecategory')";
     $result = mysqli_query($con, $expenses) or die("Something Went Wrong!");
+
+    // Get the ID of the last inserted expense
+    $expense_id = mysqli_insert_id($con);
+
+    // Call the shareExpense function here and pass the $expense_id
+    shareExpense($expense_id);
 
     header('location: add_expense.php');
 }
@@ -114,6 +120,29 @@ if (isset($_GET['delete'])) {
         echo ("WARNING: AUTHORIZATION ERROR: Trying to Access Unauthorized data");
     }
 }
+
+// New Code
+if (!empty($_POST['shareduser']) && !empty($_POST['sharedamount'])) {
+    shareExpense($expense_id);
+}
+
+
+
+// New Function
+function shareExpense($expense_id)
+{
+    global $con;
+
+    $shareduser = $_POST['shareduser'];
+    $sharedamount = $_POST['sharedamount'];
+
+    $shared_expenses = "INSERT INTO shared_expenses (expense_id, user_id, amount) VALUES ('$expense_id', '$shareduser', '$sharedamount')";
+    $result = mysqli_query($con, $shared_expenses) or die("Something Went Wrong!");
+
+    // Add a notification for the shared user
+    $message = "A new expense has been shared with you. Amount: $" . $sharedamount;
+    addNotification($shareduser, $message);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -154,6 +183,7 @@ if (isset($_GET['delete'])) {
                 <a href="index.php" class="list-group-item list-group-item-action"><span data-feather="home"></span> Dashboard</a>
                 <a href="add_expense.php" class="list-group-item list-group-item-action sidebar-active"><span data-feather="plus-square"></span> Add Expenses</a>
                 <a href="manage_expense.php" class="list-group-item list-group-item-action"><span data-feather="dollar-sign"></span> Manage Expenses</a>
+                <a href="expense_trends.php" class="list-group-item list-group-item-action "><span data-feather="bar-chart-2"></span> Expenses Trends</a>
             </div>
             <div class="sidebar-heading">Settings </div>
             <div class="list-group list-group-flush">
@@ -268,6 +298,18 @@ if (isset($_GET['delete'])) {
                                 </div>
                             </fieldset>
                             <div class="form-group row">
+                                <label for="shareduser" class="col-sm-6 col-form-label"><b>Share with (User ID)</b></label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control col-sm-12" id="shareduser" name="shareduser">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="sharedamount" class="col-sm-6 col-form-label"><b>Amount they should pay</b></label>
+                                <div class="col-md-6">
+                                    <input type="number" class="form-control col-sm-12" id="sharedamount" name="sharedamount">
+                                </div>
+                            </div>
+                            <div class="form-group row">
                                 <div class="col-md-12 text-right">
                                     <?php if ($update == true) : ?>
                                         <button class="btn btn-lg btn-block btn-warning" style="border-radius: 0%;" type="submit" name="update">Update</button>
@@ -282,7 +324,7 @@ if (isset($_GET['delete'])) {
                     </div>
 
                     <div class="col-md-3"></div>
-                    
+
                 </div>
             </div>
         </div>
@@ -309,4 +351,5 @@ if (isset($_GET['delete'])) {
 
     </script>
 </body>
+
 </html>

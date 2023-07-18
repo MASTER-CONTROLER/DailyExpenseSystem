@@ -1,10 +1,25 @@
 <?php
-  include("session.php");
-  $exp_category_dc = mysqli_query($con, "SELECT expensecategory FROM expenses WHERE user_id = '$userid' GROUP BY expensecategory");
-  $exp_amt_dc = mysqli_query($con, "SELECT SUM(expense) FROM expenses WHERE user_id = '$userid' GROUP BY expensecategory");
+include("session.php");
+$exp_category_dc = mysqli_query($con, "SELECT expensecategory FROM expenses LEFT JOIN shared_expenses ON expenses.expense_id = shared_expenses.expense_id WHERE expenses.user_id = '$userid' OR shared_expenses.user_id = '$userid' GROUP BY expensecategory");
+$exp_amt_dc = mysqli_query($con, "SELECT SUM(expense), SUM(shared_expenses.amount) FROM expenses LEFT JOIN shared_expenses ON expenses.expense_id = shared_expenses.expense_id WHERE expenses.user_id = '$userid' OR shared_expenses.user_id = '$userid' GROUP BY expensecategory");
+$exp_date_line = mysqli_query($con, "SELECT expensedate FROM expenses LEFT JOIN shared_expenses ON expenses.expense_id = shared_expenses.expense_id WHERE expenses.user_id = '$userid' OR shared_expenses.user_id = '$userid' GROUP BY MONTH(expensedate)");
+$exp_amt_line = mysqli_query($con, "SELECT SUM(expense), SUM(shared_expenses.amount) FROM expenses LEFT JOIN shared_expenses ON expenses.expense_id = shared_expenses.expense_id WHERE expenses.user_id = '$userid' OR shared_expenses.user_id = '$userid' GROUP BY MONTH(expensedate)");
 
-  $exp_date_line = mysqli_query($con, "SELECT expensedate FROM expenses WHERE user_id = '$userid' GROUP BY expensedate");
-  $exp_amt_line = mysqli_query($con, "SELECT SUM(expense) FROM expenses WHERE user_id = '$userid' GROUP BY expensedate");
+
+$exp_shared = mysqli_query($con, "SELECT expenses.*, shared_expenses.user_id as shared_user_id, shared_expenses.amount as shared_amount FROM expenses LEFT JOIN shared_expenses ON expenses.expense_id = shared_expenses.expense_id WHERE expenses.user_id = '$userid'");
+
+$expenses = mysqli_query($con, "SELECT expensedate, SUM(expense) as total_expense FROM expenses WHERE user_id = '$userid' GROUP BY expensedate ORDER BY expensedate");
+$dates = array();
+$amounts = array();
+
+while ($row = mysqli_fetch_array($expenses)) {
+  $dates[] = $row['expensedate'];
+  $amounts[] = $row['total_expense'];
+}
+
+$dates = json_encode($dates);
+$amounts = json_encode($amounts);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,6 +35,8 @@
 
   <!-- Bootstrap core CSS -->
   <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
 
   <!-- Custom styles for this template -->
   <link href="css/style.css" rel="stylesheet">
@@ -56,6 +73,7 @@
         <a href="index.php" class="list-group-item list-group-item-action sidebar-active"><span data-feather="home"></span> Dashboard</a>
         <a href="add_expense.php" class="list-group-item list-group-item-action "><span data-feather="plus-square"></span> Add Expenses</a>
         <a href="manage_expense.php" class="list-group-item list-group-item-action "><span data-feather="dollar-sign"></span> Manage Expenses</a>
+        <a href="expense_trends.php" class="list-group-item list-group-item-action "><span data-feather="bar-chart-2"></span> Expenses Trends</a>
       </div>
       <div class="sidebar-heading">Settings </div>
       <div class="list-group list-group-flush">
@@ -79,6 +97,42 @@
           <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-bell"></i> Notifications
+                <?php
+                $query = "SELECT * FROM notifications WHERE user_id = '$userid' AND `read` = 0";
+                if ($result = mysqli_query($con, $query)) {
+                  $num_unread = mysqli_num_rows($result);
+                  if ($num_unread > 0) {
+                    echo "<span class='badge badge-danger'>$num_unread</span>";
+                  }
+                } else {
+                  echo "Query failed: " . mysqli_error($con);
+                }
+                ?>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                <?php
+                $query = "SELECT * FROM notifications WHERE user_id = '$userid' ORDER BY date DESC";
+                $result = mysqli_query($con, $query) or die("Something Went Wrong!");
+
+                if (mysqli_num_rows($result) > 0) {
+                  while ($row = mysqli_fetch_array($result)) {
+                    echo '<a class="dropdown-item" href="#">' . $row['message'] . " (" . $row['date'] . ")</a>";
+                  }
+                } else {
+                  echo '<a class="dropdown-item" href="#">No notifications</a>';
+                }
+                ?>
+              </div>
+            </li>
+          </ul>
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <img class="img img-fluid rounded-circle" src="<?php echo $userprofile ?>" width="25">
               </a>
               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -89,6 +143,7 @@
             </li>
           </ul>
         </div>
+
       </nav>
 
       <div class="container-fluid">
@@ -113,18 +168,19 @@
                       <p>User Profile</p>
                     </a>
                   </div>
+                 
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <h3 class="mt-4">Full-Expense Report</h3>
+        <h3 class="mt-4">Expense Report</h3>
         <div class="row">
           <div class="col-md">
             <div class="card">
               <div class="card-header">
-                <h5 class="card-title text-center">Yearly Expenses</h5>
+                <h5 class="card-title text-center"><a href="expense_trends.php" target="_blank"> Yearly Expenses </a></h5>
               </div>
               <div class="card-body">
                 <canvas id="expense_line" height="150"></canvas>
@@ -142,7 +198,6 @@
             </div>
           </div>
         </div>
-
 
       </div>
     </div>
