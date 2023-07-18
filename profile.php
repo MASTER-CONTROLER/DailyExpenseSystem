@@ -27,7 +27,7 @@ if (isset($_POST['but_upload'])) {
     $extensions_arr = array("jpg", "jpeg", "png", "gif");
 
     // Check extension
-      if (in_array($imageFileType, $extensions_arr)) {
+    if (in_array($imageFileType, $extensions_arr)) {
 
         // Insert record
         $query = "UPDATE users SET profile_path = '$name' WHERE user_id='$userid'";
@@ -62,6 +62,7 @@ if (isset($_POST['but_upload'])) {
     <script src="js/feather.min.js"></script>
 
 </head>
+
 <body>
 
     <div class="d-flex" id="wrapper">
@@ -96,7 +97,41 @@ if (isset($_POST['but_upload'])) {
                 <button class="toggler" type="button" id="menu-toggle" aria-expanded="false">
                     <span data-feather="menu"></span>
                 </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell"></i> Notifications
+                                <?php
+                                $query = "SELECT * FROM notifications WHERE user_id = '$userid' AND `read` = 0";
+                                if ($result = mysqli_query($con, $query)) {
+                                    $num_unread = mysqli_num_rows($result);
+                                    if ($num_unread > 0) {
+                                        echo "<span class='badge badge-danger'>$num_unread</span>";
+                                    }
+                                } else {
+                                    echo "Query failed: " . mysqli_error($con);
+                                }
+                                ?>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <?php
+                                $query = "SELECT * FROM notifications WHERE user_id = '$userid' ORDER BY date DESC";
+                                $result = mysqli_query($con, $query) or die("Something Went Wrong!");
 
+                                if (mysqli_num_rows($result) > 0) {
+                                    while ($row = mysqli_fetch_array($result)) {
+                                        echo '<a class="dropdown-item" href="#">' . $row['message'] . " (" . $row['date'] . ")</a>";
+                                    }
+                                } else {
+                                    echo '<a class="dropdown-item" href="#">No notifications</a>';
+                                }
+                                ?>
+                            </div>
+                        </li>
+                    </ul>
+
+                </div>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
                         <li class="nav-item dropdown">
@@ -115,8 +150,8 @@ if (isset($_POST['but_upload'])) {
             <div class="container-fluid">
                 <div class="row justify-content-center">
                     <div class="col-md-6">
-                    <h3 class="mt-4 text-center">Update Profile</h3>
-                    <hr>
+                        <h3 class="mt-4 text-center">Update Profile</h3>
+                        <hr>
                         <form class="form" method="post" action="" enctype='multipart/form-data'>
                             <div class="text-center mt-3">
                                 <img src="<?php echo $userprofile; ?>" class="text-center img img-fluid rounded-circle avatar" width="120" alt="Profile Picture">
@@ -159,7 +194,7 @@ if (isset($_POST['but_upload'])) {
                                 </div>
                             </div>
                             <div class="form-group">
-                            <div class="col-md">
+                                <div class="col-md">
                                     <label for="email">
                                         Email
                                     </label>
