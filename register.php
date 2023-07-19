@@ -1,34 +1,48 @@
 <?php
 require('config.php');
-if (isset($_REQUEST['firstname'])) {
-  if ($_REQUEST['password'] == $_REQUEST['confirm_password']) {
-    $firstname = stripslashes($_REQUEST['firstname']);
-    $firstname = mysqli_real_escape_string($con, $firstname);
-    $lastname = stripslashes($_REQUEST['lastname']);
-    $lastname = mysqli_real_escape_string($con, $lastname);
 
-    $email = stripslashes($_REQUEST['email']);
-    $email = mysqli_real_escape_string($con, $email);
-
-
-    $password = stripslashes($_REQUEST['password']);
-    $password = mysqli_real_escape_string($con, $password);
-
-
+// Check if form is submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  // Check if passwords match
+  if ($_POST['password'] == $_POST['confirm_password']) {
+    // Sanitize and prepare data
+    $firstname = mysqli_real_escape_string($con, $_POST['firstname']);
+    $lastname = mysqli_real_escape_string($con, $_POST['lastname']);
+    $email = mysqli_real_escape_string($con, $_POST['email']);
+    $password = mysqli_real_escape_string($con, $_POST['password']);
     $trn_date = date("Y-m-d H:i:s");
 
-    $query = "INSERT into `users` (firstname, lastname, password, email, trn_date) VALUES ('$firstname','$lastname', '" . md5($password) . "', '$email', '$trn_date')";
+    // Prepare SQL query
+    $query = "INSERT INTO `users` (firstname, lastname, password, email, trn_date) 
+                  VALUES ('$firstname','$lastname', '" . md5($password) . "', '$email', '$trn_date')";
+
+    // Execute query
     $result = mysqli_query($con, $query);
+
+    // Check result
     if ($result) {
       header("Location: login.php");
+      exit;
+    } else {
+      $error_message = "Error: " . mysqli_error($con);
     }
   } else {
-    echo ("ERROR: Please Check Your Password & Confirmation password");
+    $error_message = "ERROR: Please Check Your Password & Confirmation password";
   }
 }
 ?>
+
+<!-- HTML starts here -->
 <!DOCTYPE html>
 <html lang="en">
+<!-- ... rest of your HTML code ... -->
+
+<?php
+// Display error message if it exists
+if (isset($error_message)) {
+  echo "<p class='error'>$error_message</p>";
+}
+?>
 
 <head>
 
